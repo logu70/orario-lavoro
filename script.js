@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#workTimeForm input').forEach(input => {
         input.addEventListener('input', calculateExitTimes);
     });
+
+    setInterval(() => {
+        calculateExitTimes();
+    }, 10000);
 });
 
 function parseTime(timeStr) {
@@ -12,9 +16,12 @@ function parseTime(timeStr) {
 }
 
 function formatTime(minutes) {
+    var plus = ''
+    if(minutes < 0) plus = '-';
+    minutes = Math.abs(minutes);
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    return `${plus}${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
 
 function calculateExitTimes() {
@@ -38,6 +45,18 @@ function calculateExitTimes() {
 
     document.getElementById('mealVoucherTime').innerText = formatTime(mealVoucherExitTime);
     document.getElementById('sevenHoursTwelveMinutesTime').innerText = formatTime(sevenTwelveExitTime);
+
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+
+    var now = parseTime(h+':'+m);
+
+    document.getElementById('mealVoucherRemaining').innerText = formatTime(mealVoucherExitTime - now);
+    document.getElementById('sevenHoursTwelveRemaining').innerText = formatTime(sevenTwelveExitTime - now);
+
+
+    
 }
 
 function deleteBreak(element) {
