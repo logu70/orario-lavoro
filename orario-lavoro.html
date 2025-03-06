@@ -4,90 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calcolo Orario di Uscita</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            display: flex;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 750px;
-        }
-        .form-container {
-            flex: 1;
-            padding-right: 20px;
-            border-right: 2px solid #ddd;
-        }
-        .result-container {
-            flex: 1.3;
-            padding-left: 20px;
-            display: flex;
-            align-items: flex-start;
-            margin-top: 120px;
-        }
-        h1 {
-            text-align: center;
-            color: #007bff;
-        }
-        .input-group {
-            margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-        }
-        label {
-            font-weight: bold;
-            margin-top: 5px;
-            display: block;
-        }
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
-            background: #e9f5ff;
-            border-left: 5px solid #007bff;
-            text-align: left;
-        }
-        .result p {
-            margin: 5px 0;
-        }
-        .group-spacing {
-            margin-bottom: 20px;
-        }
-        .add-break-btn {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-        }
-        .add-break-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -105,7 +22,8 @@
                     <input type="time" id="lunchEndTime" value="12:30">
                 </div>
 				<div id="breaks-wrapper">
-					<div id="breaksContainer" class="input-group">
+					<div id="breaksContainer" class="break-container">
+						<button type="button" class="delete-break" onclick="deleteBreak(this)">×</button>
 						<label>Inizio uscita breve (hh:mm):</label>
 						<input type="time" class="shortBreakStartTime">
 						<label>Fine uscita breve (hh:mm):</label>
@@ -130,66 +48,6 @@
             </div>
         </div>
     </div>
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            calculateExitTimes();
-            document.querySelectorAll('#workTimeForm input').forEach(input => {
-                input.addEventListener('input', calculateExitTimes);
-            });
-        });
-
-        function parseTime(timeStr) {
-            if (!timeStr) return null;
-            const [hours, minutes] = timeStr.split(':').map(Number);
-            return hours * 60 + minutes;
-        }
-
-        function formatTime(minutes) {
-            const hours = Math.floor(minutes / 60);
-            const mins = minutes % 60;
-            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-        }
-
-        function calculateExitTimes() {
-            const arrivalTime = parseTime(document.getElementById('arrivalTime').value);
-            if (arrivalTime === null) return;
-
-            const lunchStartTime = parseTime(document.getElementById('lunchStartTime').value);
-            const lunchEndTime = parseTime(document.getElementById('lunchEndTime').value);
-            let lunchDuration = (lunchStartTime !== null && lunchEndTime !== null) ? (lunchEndTime - lunchStartTime) : 30;
-
-            let totalBreaksDuration = lunchDuration;
-            document.querySelectorAll('.shortBreakStartTime').forEach((start, index) => {
-                const end = document.querySelectorAll('.shortBreakEndTime')[index];
-                if (start.value && end.value) {
-                    totalBreaksDuration += parseTime(end.value) - parseTime(start.value);
-                }
-            });
-
-            const mealVoucherExitTime = arrivalTime + 6 * 60 + totalBreaksDuration;
-            const sevenTwelveExitTime = arrivalTime + 7 * 60 + 12 + totalBreaksDuration;
-
-            document.getElementById('mealVoucherTime').innerText = formatTime(mealVoucherExitTime);
-            document.getElementById('sevenHoursTwelveMinutesTime').innerText = formatTime(sevenTwelveExitTime);
-        }
-            function addBreak() {
-            const breaksContainer = document.getElementById('breaks-wrapper');
-            const newBreak = document.createElement('div');
-            
-            newBreak.innerHTML = `
-                <label>Inizio uscita breve (hh:mm):</label>
-                <input type="time" class="shortBreakStartTime">
-                <label>Fine uscita breve (hh:mm):</label>
-                <input type="time" class="shortBreakEndTime">
-            `;
-            breaksContainer.appendChild(newBreak);
-            newBreak.style.marginTop = '10px';
-            newBreak.style.padding = '10px';
-            newBreak.style.border = '1px solid #ddd';
-            newBreak.style.borderRadius = '5px';
-            newBreak.style.backgroundColor = '#f9f9f9';
-            newBreak.querySelectorAll('input').forEach(input => input.addEventListener('input', calculateExitTimes));
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
