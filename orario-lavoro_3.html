@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolo Orario di Uscita</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 750px;
+        }
+        .form-container {
+            flex: 1;
+            padding-right: 20px;
+            border-right: 2px solid #ddd;
+        }
+        .result-container {
+            flex: 1.3;
+            padding-left: 20px;
+        
+            display: flex;
+            align-items: flex-start;
+            margin-top: 120px;}
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9f5ff;
+            border-left: 5px solid #007bff;
+            text-align: left;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .group-spacing {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Calcolo Orario di Uscita</h1>
+            <form id="workTimeForm">
+                <label for="arrivalTime">Orario di arrivo (hh:mm):</label>
+                <input type="time" id="arrivalTime" value="07:30" required>
+
+                <label for="lunchStartTime">Inizio pausa pranzo (hh:mm):</label>
+                <input type="time" id="lunchStartTime" value="12:00">
+
+                <label for="lunchEndTime">Fine pausa pranzo (hh:mm):</label>
+                <input type="time" id="lunchEndTime" value="12:30">
+
+                <label for="shortBreakStartTime">Inizio uscita breve (hh:mm):</label>
+                <input type="time" id="shortBreakStartTime">
+
+                <label for="shortBreakEndTime">Fine uscita breve (hh:mm):</label>
+                <input type="time" id="shortBreakEndTime">
+            </form>
+        </div>
+        
+        <div class="result-container">
+            <div id="results" class="result">
+                <h2>Risultati:</h2>
+                <div class="group-spacing">
+                    <p><strong>Orario di uscita per buono pasto:</strong> <span id="mealVoucherTime"></span></p>
+                    <p><strong>Tempo rimanente:</strong> <span id="mealVoucherRemaining"></span></p>
+                </div>
+                <div>
+                    <p><strong>Orario di uscita per 7:12 effettive:</strong> <span id="sevenHoursTwelveMinutesTime"></span></p>
+                    <p><strong>Tempo rimanente:</strong> <span id="sevenHoursTwelveRemaining"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            calculateExitTimes();
+            document.querySelectorAll('#workTimeForm input').forEach(input => {
+                input.addEventListener('input', calculateExitTimes);
+            });
+        });
+
+        function parseTime(timeStr) {
+            if (!timeStr) return null;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function formatDuration(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins.toString().padStart(2, '0')}m`;
+        }
+
+        function calculateExitTimes() {
+            const arrivalTime = parseTime(document.getElementById('arrivalTime').value);
+            if (arrivalTime === null) {
+                document.getElementById('results').style.display = 'none';
+                return;
+            }
+
+            const lunchStartTime = parseTime(document.getElementById('lunchStartTime').value);
+            const lunchEndTime = parseTime(document.getElementById('lunchEndTime').value);
+            const shortBreakStartTime = parseTime(document.getElementById('shortBreakStartTime').value);
+            const shortBreakEndTime = parseTime(document.getElementById('shortBreakEndTime').value);
+
+            let lunchDuration = 30;
+            if (lunchStartTime !== null && lunchEndTime !== null) {
+                lunchDuration = lunchEndTime - lunchStartTime;
+            }
+
+            const shortBreakDuration = (shortBreakStartTime !== null && shortBreakEndTime !== null) ? shortBreakEndTime - shortBreakStartTime : 0;
+            const totalBreaksDuration = lunchDuration + shortBreakDuration;
+
+            const workDurationForMealVoucher = 6 * 60;
+            const workDurationForSevenTwelve = 7 * 60 + 12;
+
+            const mealVoucherExitTime = arrivalTime + workDurationForMealVoucher + totalBreaksDuration;
+            const sevenTwelveExitTime = arrivalTime + workDurationForSevenTwelve + totalBreaksDuration;
+
+            document.getElementById('mealVoucherTime').innerText = formatTime(mealVoucherExitTime);
+            document.getElementById('mealVoucherRemaining').innerText = formatDuration(mealVoucherExitTime - (new Date().getHours() * 60 + new Date().getMinutes()));
+            document.getElementById('sevenHoursTwelveMinutesTime').innerText = formatTime(sevenTwelveExitTime);
+            document.getElementById('sevenHoursTwelveRemaining').innerText = formatDuration(sevenTwelveExitTime - (new Date().getHours() * 60 + new Date().getMinutes()));
+        }
+    </script>
+</body>
+</html>
