@@ -104,12 +104,14 @@
                     <label for="lunchEndTime">Fine pausa pranzo (hh:mm):</label>
                     <input type="time" id="lunchEndTime" value="12:30">
                 </div>
-                <div id="breaksContainer" class="input-group">
-                    <label>Inizio uscita breve (hh:mm):</label>
-                    <input type="time" class="shortBreakStartTime">
-                    <label>Fine uscita breve (hh:mm):</label>
-                    <input type="time" class="shortBreakEndTime">
-                </div>
+				<div id="breaks-wrapper">
+					<div id="breaksContainer" class="input-group">
+						<label>Inizio uscita breve (hh:mm):</label>
+						<input type="time" class="shortBreakStartTime">
+						<label>Fine uscita breve (hh:mm):</label>
+						<input type="time" class="shortBreakEndTime">
+					</div>
+				</div>
                 <button type="button" class="add-break-btn" onclick="addBreak()">Aggiungi Nuova Uscita Breve</button>
             </form>
         </div>
@@ -171,7 +173,7 @@
             document.getElementById('sevenHoursTwelveMinutesTime').innerText = formatTime(sevenTwelveExitTime);
         }
             function addBreak() {
-            const breaksContainer = document.getElementById('breaksContainer');
+            const breaksContainer = document.getElementById('breaks-wrapper');
             const newBreak = document.createElement('div');
             
             newBreak.innerHTML = `
